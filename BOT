@@ -1,0 +1,25 @@
+package com.example.bot;
+
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.activity.Activity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
+public class Bot extends ListenerAdapter {
+    public static void main(String[] args) throws Exception {
+        String token = System.getenv("DISCORD_TOKEN"); // load token from env variable
+        JDABuilder.createDefault(token)
+                .addEventListeners(new Bot())
+                .setActivity(Activity.playing("with Java"))
+                .build();
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (!event.getAuthor().isBot()) {
+            if (event.getMessage().getContentRaw().equalsIgnoreCase("!ping")) {
+                event.getChannel().sendMessage("Pong! 🏓").queue();
+            }
+        }
+    }
+}
