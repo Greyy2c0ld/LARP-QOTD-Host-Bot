@@ -1,12 +1,20 @@
 import discord
 from discord.ext import commands, tasks
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from flask import Flask
+from threading import Thread
 import os
 import random
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+PORT = int(os.getenv("PORT", 10000))
 
 QOTD_CHANNEL_ID = 1397263932300853368
+ROLE_ID = 1397265374042656768
+
+NY_TIME = ZoneInfo("America/New_York")
+START_DATE = datetime.now(NY_TIME).date()
 
 questions = [
     "What department do you main in LARP?",
@@ -15,6 +23,15 @@ questions = [
     "Who is your favorite person to RP with?",
     "What makes a roleplay realistic?",
 ]
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "LARP QOTD Bot is running!"
+
+def run_web():
+    app.run(host="0.0.0.0", port=PORT)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,7 +42,7 @@ last_sent_date = None
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user}')
+    print(f"Logged in as {bot.user}")
 
     if not qotd_loop.is_running():
         qotd_loop.start()
@@ -34,40 +51,32 @@ async def on_ready():
 async def qotd_loop():
     global last_sent_date
 
-    now = datetime.now()
-
+    now = datetime.now(NY_TIME)
     current_date = now.date()
 
-    # Prevent duplicate sends
     if last_sent_date == current_date:
         return
 
-    hour = now.hour
-    minute = now.minute
-
     should_send = False
 
-    # TODAY ONLY → 6 PM EST
-    if current_date.day == 8:
-        if hour == 18 and minute == 0:
-            should_send = True
+    # Today only: 6:00 PM EST/EDT
+    if current_date == START_DATE and now.hour == 18 and now.minute == 0:
+        should_send = True
 
-    # EVERY DAY AFTER TODAY → 7 AM EST
-    else:
-        if hour == 7 and minute == 0:
-            should_send = True
+    # After today: every day at 7:00 AM EST/EDT
+    elif current_date > START_DATE and now.hour == 7 and now.minute == 0:
+        should_send = True
 
     if should_send:
         channel = bot.get_channel(QOTD_CHANNEL_ID)
 
         if channel:
             question = random.choice(questions)
-
-            unix_timestamp = int(discord.utils.utcnow().timestamp())
+            unix_timestamp = int(now.timestamp())
 
             message = f"""# <:questionmark:1474258261812318251> LARP QOTD 🧭🌌
 
-Hello <@&1397265374042656768>! Today is <t:{unix_timestamp}:D>, which means it’s time for today’s QOTD!
+Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time for today’s QOTD!
 
 🌌⏱️ QOTD: {question}
 
@@ -77,7 +86,7 @@ Hello <@&1397265374042656768>! Today is <t:{unix_timestamp}:D>, which means it�
 """
 
             await channel.send(message)
-
             last_sent_date = current_date
 
+Thread(target=run_web).start()
 bot.run(DISCORD_TOKEN)
