@@ -16,11 +16,21 @@ ROLE_ID = 1397265374042656768
 NY_TIME = ZoneInfo("America/New_York")
 
 questions = [
-    "What department do you main in LARP?",
-    "What is your favorite RP scene you've done?",
-    "What update should LARP add next?",
-    "Who is your favorite person to RP with?",
-    "What makes a roleplay realistic?",
+    "What is one thing you enjoy most about roleplaying?",
+    "What is your favorite memory you've made in LARP so far?",
+    "What type of roleplay scenarios do you enjoy the most?",
+    "What keeps you active within the community?",
+    "What is one feature you would love to see added in the future?",
+    "What is your favorite thing to do while in-game?",
+    "What inspired you to join LARP?",
+    "What makes a roleplay server enjoyable for you?",
+    "What is your favorite vehicle in ER:LC?",
+    "What department do you enjoy using the most?",
+    "What is one goal you have while roleplaying?",
+    "What is your favorite update added to ER:LC?",
+    "What kind of events would you like to see more often?",
+    "What is your favorite part about the community?",
+    "What is one thing that improves realism in roleplay?",
 ]
 
 app = Flask(__name__)
