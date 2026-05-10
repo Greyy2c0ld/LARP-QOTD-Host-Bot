@@ -14,7 +14,6 @@ QOTD_CHANNEL_ID = 1397263932300853368
 ROLE_ID = 1397265374042656768
 
 NY_TIME = ZoneInfo("America/New_York")
-START_DATE = datetime.now(NY_TIME).date()
 
 questions = [
     "What department do you main in LARP?",
@@ -39,10 +38,41 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 last_sent_date = None
+sent_startup_qotd = False
+
+async def send_qotd():
+    global last_sent_date
+
+    channel = bot.get_channel(QOTD_CHANNEL_ID)
+
+    if channel:
+        now = datetime.now(NY_TIME)
+        question = random.choice(questions)
+        unix_timestamp = int(now.timestamp())
+
+        message = f"""# <:questionmark:1474258261812318251> LARP QOTD 🧭🌌
+
+Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time for today’s QOTD!
+
+🌌⏱️ QOTD: {question}
+
+📝💬 Drop your answer in the thread below!
+👇✨
+-# Powered by LARP Auto-QOTD Bot
+"""
+
+        await channel.send(message)
+        last_sent_date = now.date()
 
 @bot.event
 async def on_ready():
+    global sent_startup_qotd
+
     print(f"Logged in as {bot.user}")
+
+    if not sent_startup_qotd:
+        await send_qotd()
+        sent_startup_qotd = True
 
     if not qotd_loop.is_running():
         qotd_loop.start()
@@ -57,36 +87,8 @@ async def qotd_loop():
     if last_sent_date == current_date:
         return
 
-    should_send = False
-
-    # Today only: 6:00 PM EST/EDT
-    if current_date == START_DATE and now.hour == 18 and now.minute == 0:
-        should_send = True
-
-    # After today: every day at 7:00 AM EST/EDT
-    elif current_date > START_DATE and now.hour == 7 and now.minute == 0:
-        should_send = True
-
-    if should_send:
-        channel = bot.get_channel(QOTD_CHANNEL_ID)
-
-        if channel:
-            question = random.choice(questions)
-            unix_timestamp = int(now.timestamp())
-
-            message = f"""# <:questionmark:1474258261812318251> LARP QOTD 🧭🌌
-
-Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time for today’s QOTD!
-
-🌌⏱️ QOTD: {question}
-
-📝💬 Drop your answer in the thread below!
-👇✨
--# Powered by LARP Auto-QOTD Bot
-"""
-
-            await channel.send(message)
-            last_sent_date = current_date
+    if now.hour == 7 and now.minute == 0:
+        await send_qotd()
 
 Thread(target=run_web).start()
 bot.run(DISCORD_TOKEN)
