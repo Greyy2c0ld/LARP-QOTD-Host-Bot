@@ -73,7 +73,6 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 last_sent_date = None
-sent_startup_qotd = False
 
 async def send_qotd():
     global last_sent_date
@@ -112,13 +111,7 @@ Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time fo
 
 @bot.event
 async def on_ready():
-    global sent_startup_qotd
-
     print(f"Logged in as {bot.user}")
-
-    if not sent_startup_qotd:
-        await send_qotd()
-        sent_startup_qotd = True
 
     if not qotd_loop.is_running():
         qotd_loop.start()
