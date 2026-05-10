@@ -15,22 +15,47 @@ ROLE_ID = 1397265374042656768
 
 NY_TIME = ZoneInfo("America/New_York")
 
-questions = [
-    "What is one thing you enjoy most about roleplaying?",
-    "What is your favorite memory you've made in LARP so far?",
-    "What type of roleplay scenarios do you enjoy the most?",
-    "What keeps you active within the community?",
-    "What is one feature you would love to see added in the future?",
-    "What is your favorite thing to do while in-game?",
-    "What inspired you to join LARP?",
-    "What makes a roleplay server enjoyable for you?",
-    "What is your favorite vehicle in ER:LC?",
-    "What department do you enjoy using the most?",
-    "What is one goal you have while roleplaying?",
-    "What is your favorite update added to ER:LC?",
-    "What kind of events would you like to see more often?",
-    "What is your favorite part about the community?",
-    "What is one thing that improves realism in roleplay?",
+qotds = [
+    {
+        "question": "If you could instantly master any skill, what would it be?",
+        "opinion": "My opinion: Being able to instantly master a skill would probably completely change someone’s future."
+    },
+    {
+        "question": "What’s a food you could eat every single day?",
+        "opinion": "My opinion: Comfort foods usually say a lot about someone because they connect to memories and routines."
+    },
+    {
+        "question": "If money didn’t matter, where would you travel first?",
+        "opinion": "My opinion: Most people probably already have a dream destination they think about all the time."
+    },
+    {
+        "question": "What’s your biggest pet peeve?",
+        "opinion": "My opinion: Pet peeves are funny because something tiny can completely annoy one person but not affect another."
+    },
+    {
+        "question": "What’s one song you never skip?",
+        "opinion": "My opinion: Everyone has at least one song that instantly changes their mood."
+    },
+    {
+        "question": "What’s your dream car?",
+        "opinion": "My opinion: Dream cars usually reflect personality more than people realize."
+    },
+    {
+        "question": "What’s your most unpopular opinion?",
+        "opinion": "My opinion: Unpopular opinions are entertaining as long as people keep things respectful."
+    },
+    {
+        "question": "What’s the weirdest food combination you actually enjoy?",
+        "opinion": "My opinion: Weird food combinations always sound disgusting until someone actually tries them."
+    },
+    {
+        "question": "Would you rather have unlimited money or unlimited free time?",
+        "opinion": "My opinion: Free time might actually be more valuable because you can never truly buy more time."
+    },
+    {
+        "question": "What’s your favorite fast food spot?",
+        "opinion": "My opinion: Fast food debates somehow become more serious than real arguments."
+    }
 ]
 
 app = Flask(__name__)
@@ -57,10 +82,14 @@ async def send_qotd():
 
     if channel:
         now = datetime.now(NY_TIME)
-        question = random.choice(questions)
+        selected_qotd = random.choice(qotds)
+
+        question = selected_qotd["question"]
+        opinion = selected_qotd["opinion"]
+
         unix_timestamp = int(now.timestamp())
 
-        message = f"""# <:questionmark:1474258261812318251> LARP QOTD 🧭🌌
+        message = f"""# ❔ LARP QOTD 🧭🌌
 
 Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time for today’s QOTD!
 
@@ -71,7 +100,14 @@ Hello <@&{ROLE_ID}>! Today is <t:{unix_timestamp}:D>, which means it’s time fo
 -# Powered by LARP Auto-QOTD Bot
 """
 
-        await channel.send(message)
+        sent_message = await channel.send(message)
+
+        thread = await sent_message.create_thread(
+            name="QOTD Discussion"
+        )
+
+        await thread.send(f"🤖 {opinion}")
+
         last_sent_date = now.date()
 
 @bot.event
