@@ -15,48 +15,66 @@ ROLE_ID = 1397265374042656768
 
 NY_TIME = ZoneInfo("America/New_York")
 
-qotds = [
-    {
-        "question": "If you could instantly master any skill, what would it be?",
-        "opinion": "My opinion: Being able to instantly master a skill would probably completely change someone’s future."
-    },
-    {
-        "question": "What’s a food you could eat every single day?",
-        "opinion": "My opinion: Comfort foods usually say a lot about someone because they connect to memories and routines."
-    },
-    {
-        "question": "If money didn’t matter, where would you travel first?",
-        "opinion": "My opinion: Most people probably already have a dream destination they think about all the time."
-    },
-    {
-        "question": "What’s your biggest pet peeve?",
-        "opinion": "My opinion: Pet peeves are funny because something tiny can completely annoy one person but not affect another."
-    },
-    {
-        "question": "What’s one song you never skip?",
-        "opinion": "My opinion: Everyone has at least one song that instantly changes their mood."
-    },
-    {
-        "question": "What’s your dream car?",
-        "opinion": "My opinion: Dream cars usually reflect personality more than people realize."
-    },
-    {
-        "question": "What’s your most unpopular opinion?",
-        "opinion": "My opinion: Unpopular opinions are entertaining as long as people keep things respectful."
-    },
-    {
-        "question": "What’s the weirdest food combination you actually enjoy?",
-        "opinion": "My opinion: Weird food combinations always sound disgusting until someone actually tries them."
-    },
-    {
-        "question": "Would you rather have unlimited money or unlimited free time?",
-        "opinion": "My opinion: Free time might actually be more valuable because you can never truly buy more time."
-    },
-    {
-        "question": "What’s your favorite fast food spot?",
-        "opinion": "My opinion: Fast food debates somehow become more serious than real arguments."
-    }
+topics = [
+    "food", "music", "movies", "travel", "school", "gaming", "cars",
+    "childhood", "social media", "money", "dreams", "friendships",
+    "weekends", "holidays", "summer", "pets", "sports", "shopping",
+    "technology", "favorite memories", "funny moments", "life goals"
 ]
+
+question_templates = [
+    "What is your favorite thing about {topic}?",
+    "What is one unpopular opinion you have about {topic}?",
+    "If you could change one thing about {topic}, what would it be?",
+    "What is your funniest memory involving {topic}?",
+    "What is something about {topic} that people always debate?",
+    "What is one thing you wish more people understood about {topic}?",
+    "Would you rather give up {topic} forever or use it every day?",
+    "What is your most memorable experience with {topic}?",
+    "What is something related to {topic} that instantly makes you happy?",
+    "What is one hot take you have about {topic}?",
+    "If you had unlimited money for {topic}, what would you do first?",
+    "What is something about {topic} that you think is overrated?",
+    "What is something about {topic} that you think is underrated?",
+    "What is your go-to choice when it comes to {topic}?",
+    "What is one thing about {topic} that always makes people argue?"
+]
+
+opinion_templates = [
+    "My opinion: This is a good question because everyone’s answer can be completely different.",
+    "My opinion: Questions like this usually bring out funny, honest, and unexpected answers.",
+    "My opinion: There’s really no wrong answer here, which makes it more fun to answer.",
+    "My opinion: I feel like this kind of question helps people learn more about each other.",
+    "My opinion: This is one of those topics where people always have strong opinions.",
+    "My opinion: Sometimes the simplest questions create the best conversations.",
+    "My opinion: I think answers to this can say a lot about someone’s personality.",
+    "My opinion: This could definitely start a funny debate in the thread.",
+    "My opinion: I like questions like this because they keep the conversation casual and active.",
+    "My opinion: The best answers are usually the most honest ones."
+]
+
+used_questions = set()
+
+def generate_qotd():
+    global used_questions
+
+    topic = random.choice(topics)
+    template = random.choice(question_templates)
+    question = template.format(topic=topic)
+
+    if len(used_questions) >= 100:
+        used_questions.clear()
+
+    while question in used_questions:
+        topic = random.choice(topics)
+        template = random.choice(question_templates)
+        question = template.format(topic=topic)
+
+    used_questions.add(question)
+
+    opinion = random.choice(opinion_templates)
+
+    return question, opinion
 
 app = Flask(__name__)
 
@@ -81,10 +99,8 @@ async def send_qotd():
 
     if channel:
         now = datetime.now(NY_TIME)
-        selected_qotd = random.choice(qotds)
 
-        question = selected_qotd["question"]
-        opinion = selected_qotd["opinion"]
+        question, opinion = generate_qotd()
 
         unix_timestamp = int(now.timestamp())
 
