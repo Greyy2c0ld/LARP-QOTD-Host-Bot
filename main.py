@@ -23,21 +23,26 @@ topics = [
 ]
 
 question_templates = [
-    "What is your favorite thing about {topic}?",
-    "What is one unpopular opinion you have about {topic}?",
-    "If you could change one thing about {topic}, what would it be?",
     "What is your funniest memory involving {topic}?",
-    "What is something about {topic} that people always debate?",
-    "What is one thing you wish more people understood about {topic}?",
-    "Would you rather give up {topic} forever or use it every day?",
-    "What is your most memorable experience with {topic}?",
     "What is something related to {topic} that instantly makes you happy?",
-    "What is one hot take you have about {topic}?",
-    "If you had unlimited money for {topic}, what would you do first?",
-    "What is something about {topic} that you think is overrated?",
-    "What is something about {topic} that you think is underrated?",
     "What is your go-to choice when it comes to {topic}?",
-    "What is one thing about {topic} that always makes people argue?"
+    "What is something about {topic} that always makes people argue?",
+    "What is one thing about {topic} that you think is underrated?",
+    "What is something about {topic} that you think is overrated?",
+    "What is your most memorable experience with {topic}?",
+    "What is one thing people misunderstand about {topic}?",
+    "What is your biggest pet peeve involving {topic}?",
+    "What is something about {topic} you could talk about for hours?",
+    "What is your favorite memory connected to {topic}?",
+    "What is one thing about {topic} that instantly annoys you?",
+    "What is something random about {topic} that you enjoy?",
+    "What is your favorite thing to do involving {topic}?",
+    "What is one thing you think people take too seriously about {topic}?",
+    "What is the best thing about {topic} in your opinion?",
+    "What is something about {topic} that always starts debates?",
+    "What is one experience involving {topic} you’ll never forget?",
+    "What is your favorite trend related to {topic}?",
+    "What is one thing about {topic} you wish existed more often?"
 ]
 
 opinion_templates = [
@@ -58,23 +63,18 @@ used_questions = set()
 def generate_qotd():
     global used_questions
 
-    topic = random.choice(topics)
-    template = random.choice(question_templates)
-    question = template.format(topic=topic)
-
-    if len(used_questions) >= 100:
+    if len(used_questions) >= 300:
         used_questions.clear()
 
-    while question in used_questions:
+    while True:
         topic = random.choice(topics)
         template = random.choice(question_templates)
         question = template.format(topic=topic)
 
-    used_questions.add(question)
-
-    opinion = random.choice(opinion_templates)
-
-    return question, opinion
+        if question not in used_questions:
+            used_questions.add(question)
+            opinion = random.choice(opinion_templates)
+            return question, opinion
 
 app = Flask(__name__)
 
@@ -99,9 +99,7 @@ async def send_qotd():
 
     if channel:
         now = datetime.now(NY_TIME)
-
         question, opinion = generate_qotd()
-
         unix_timestamp = int(now.timestamp())
 
         message = f"""# ❔ LARP QOTD 🧭🌌
